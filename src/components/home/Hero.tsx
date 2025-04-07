@@ -7,8 +7,11 @@ export default function Hero() {
       <div className="container mx-auto px-4">
         <div className="max-w-3xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Dr. Deveza Research Lab
+            Deveza Research and Projects
           </h1>
+          <p className="text-xl md:text-2xl mb-2">
+            Spine Surgery and Orthopaedic Oncology Research
+          </p>
           <p className="text-xl md:text-2xl mb-6">
             Innovating Orthopaedic Research through Bench Science, AI, and Health Equity
           </p>

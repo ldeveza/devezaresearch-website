@@ -7,7 +7,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="logo mb-4 md:mb-0">
-            <Link href="/" className="text-2xl font-bold">Devezaresearch Lab</Link>
+            <Link href="/" className="text-2xl font-bold">Deveza Research and Projects</Link>
           </div>
           <nav>
             <ul className="flex flex-wrap justify-center gap-1 md:gap-6">

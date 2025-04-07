@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="footer-section">
-            <h3 className="text-xl font-bold mb-4">Devezaresearch Lab</h3>
+            <h3 className="text-xl font-bold mb-4">Deveza Research and Projects</h3>
             <p>Advancing healthcare through innovative AI research and orthopaedic science.</p>
           </div>
           
@@ -28,7 +28,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-gray-700 mt-8 pt-6 text-center">
-          <p>&copy; {new Date().getFullYear()} Devezaresearch Lab. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Deveza Research and Projects. All rights reserved.</p>
         </div>
       </div>
     </footer>
