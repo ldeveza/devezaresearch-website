@@ -18,7 +18,7 @@ export default function ChatInterface({ title, description }: ChatInterfaceProps
         <div className="space-y-4">
           <div className="bg-indigo-100 p-3 rounded-lg max-w-[80%]">
             <p className="text-sm font-medium text-gray-500 mb-1">AI Assistant</p>
-            <p>Hello! I'm a specialized RAG model designed to help with orthopaedic queries. How can I assist you today?</p>
+            <p>Hello! I&apos;m a specialized RAG model designed to help with orthopaedic queries. How can I assist you today?</p>
           </div>
           
           {/* This component is currently a static mockup; it will be implemented with actual functionality later */}
