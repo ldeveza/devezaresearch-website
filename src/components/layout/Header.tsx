@@ -20,7 +20,7 @@ export default function Header() {
               <li><Link href="/xray-tool" className="px-3 py-2 text-blue-600 hover:text-blue-800 transition-colors">X-ray Tool</Link></li>
               <li>
                 <a 
-                  href="#" 
+                  href="https://discord.gg/DmUBwVE3ps" 
                   className="px-3 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
