@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
   try {
     // This simplified API endpoint just returns a message
     // Actual ML processing will be done client-side with TensorFlow.js
