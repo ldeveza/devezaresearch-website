@@ -1,4 +1,0 @@
-tensorflow>=2.12.0
-tensorflow-decision-forests>=1.3.0
-tensorflowjs>=4.10.0
-h5py>=3.8.0
