@@ -11,8 +11,8 @@ export default function SDOHToolsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">CDC PLACES API SDOH Explorer</h2>
-          <p className="mb-4">
+          <h2 className="text-xl font-semibold mb-4 text-blue-600">CDC PLACES API SDOH Explorer</h2>
+          <p className="mb-4 text-gray-800">
             Explore Social Determinants of Health (SDOH) measures available in the CDC PLACES dataset for a specific ZIP code.
             This tool helps you select and analyze various health measures for your research.
           </p>
@@ -25,8 +25,8 @@ export default function SDOHToolsPage() {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">CDC Social Vulnerability Index (SVI) Explorer</h2>
-          <p className="mb-4">
+          <h2 className="text-xl font-semibold mb-4 text-blue-600">CDC Social Vulnerability Index (SVI) Explorer</h2>
+          <p className="mb-4 text-gray-800">
             Explore CDC&apos;s Social Vulnerability Index data at the ZIP code level. SVI helps identify communities 
             that may need support before, during, or after disasters.
           </p>
@@ -40,12 +40,12 @@ export default function SDOHToolsPage() {
       </div>
 
       <div className="mt-12">
-        <h2 className="text-2xl font-semibold mb-4">About SDOH</h2>
-        <p className="mb-4">
+        <h2 className="text-2xl font-semibold mb-4 text-blue-600">About SDOH</h2>
+        <p className="mb-4 text-gray-800">
           Social Determinants of Health (SDOH) are the conditions in the environments where people are born, live, learn, work, 
           play, worship, and age that affect a wide range of health, functioning, and quality-of-life outcomes and risks.
         </p>
-        <p>
+        <p className="text-gray-800">
           These tools provide researchers, healthcare professionals, and policymakers with resources to analyze 
           SDOH factors and develop more targeted interventions to improve community health outcomes.
         </p>
