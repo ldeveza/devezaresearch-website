@@ -18,6 +18,7 @@ export default function Header() {
               <li><Link href="/team" className="px-3 py-2 text-blue-600 hover:text-blue-800 transition-colors">Team</Link></li>
               <li><Link href="/rag-models" className="px-3 py-2 text-blue-600 hover:text-blue-800 transition-colors">RAG Models</Link></li>
               <li><Link href="/xray-tool" className="px-3 py-2 text-blue-600 hover:text-blue-800 transition-colors">X-ray Tool</Link></li>
+              <li><Link href="/sdoh-tools" className="px-3 py-2 text-blue-600 hover:text-blue-800 transition-colors">SDOH Tools</Link></li>
               <li>
                 <a 
                   href="https://discord.gg/DmUBwVE3ps" 

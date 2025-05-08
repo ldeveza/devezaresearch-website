@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDC PLACES API SDOH Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #results {
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        #loading {
+            display: none;
+            margin-top: 20px;
+        }
+        .category {
+            margin-top: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f5f5f5;
+        }
+        .category-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .measure-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .measure-item:hover {
+            background-color: #e9f7fe;
+        }
+        .measure-checkbox {
+            margin-right: 10px;
+        }
+        .measure-name {
+            flex-grow: 1;
+        }
+        .measure-value {
+            min-width: 80px;
+            text-align: right;
+            color: #2980b9;
+            margin-right: 10px;
+        }
+        .measure-field {
+            font-size: 12px;
+            color: #7f8c8d;
+            width: 200px;
+            font-family: monospace;
+        }
+        .selected-container {
+            margin-top: 30px;
+        }
+        .code-box {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .copy-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #27ae60;
+        }
+        .filter-input {
+            padding: 8px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .dataset-metadata {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CDC PLACES API SDOH Explorer</h1>
+        <p>Explore Social Determinants of Health (SDOH) measures available in the CDC PLACES dataset for a specific ZIP code.</p>
+        
+        <div class="input-group">
+            <label for="zipCode">Enter ZIP Code:</label>
+            <input type="text" id="zipCode" placeholder="e.g., 10001">
+            <button onclick="testApi()">Explore SDOH Measures</button>
+        </div>
+        
+        <div id="loading">Loading data... please wait</div>
+        
+        <div id="results"></div>
+        
+        <div id="categoriesContainer" style="display: none;">
+            <h2>Available SDOH Measures</h2>
+            <p>Select the measures you would like to include in your dataset:</p>
+            <input type="text" id="filterInput" class="filter-input" placeholder="Filter measures..." onkeyup="filterMeasures()">
+            
+            <div id="categoriesWrapper"></div>
+            
+            <div class="selected-container">
+                <h2>Selected Measures</h2>
+                <div id="selectedCount">0 measures selected</div>
+                <button onclick="generateCode()" class="copy-btn">Generate Python Code</button>
+                <div id="codeBox" class="code-box"></div>
+                <button id="copyBtn" onclick="copyCode()" class="copy-btn" style="display: none;">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let allMeasures = [];
+        let measureDescriptions = {
+            // Health outcomes
+            "arthritis_crudeprev": "% of adults who report being told by a health professional they have arthritis",
+            "bphigh_crudeprev": "% of adults who report being told by a health professional they have high blood pressure",
+            "cancer_crudeprev": "% of adults who report ever being told by a health professional they have cancer",
+            "casthma_crudeprev": "% of adults who report currently having asthma",
+            "chd_crudeprev": "% of adults who report ever being told by a health professional they have coronary heart disease",
+            "copd_crudeprev": "% of adults who report ever being told by a health professional they have COPD",
+            "depression_crudeprev": "% of adults who report ever being told by a health professional they have depression",
+            "diabetes_crudeprev": "% of adults who report being told by a health professional they have diabetes",
+            "obesity_crudeprev": "% of adults with BMI ≥ 30.0 kg/m² based on self-reported height and weight",
+            "stroke_crudeprev": "% of adults who report ever being told by a health professional they had a stroke",
+            
+            // Health risk behaviors
+            "smoking_crudeprev": "% of adults who report having smoked ≥100 cigarettes and currently smoke every day or some days",
+            "binge_crudeprev": "% of adults who report having 5+ drinks (men) or 4+ drinks (women) on an occasion in past 30 days",
+            "lpa_crudeprev": "% of adults who report no leisure-time physical activity in past month",
+            "sleep_crudeprev": "% of adults who report fewer than 7 hours of sleep on average",
+            
+            // Prevention
+            "mammouse_crudeprev": "% of women aged 50-74 who report having a mammogram in past 2 years",
+            "cholscreen_crudeprev": "% of adults who report having cholesterol screening in past 5 years",
+            "colon_screen_crudeprev": "% of adults aged 50-75 who report having recommended colorectal cancer screening",
+            "dental_crudeprev": "% of adults who report visiting a dentist or dental clinic in past year",
+            "corem_crudeprev": "% of adults aged 65+ who report having had core set of clinical preventive services",
+            
+            // Healthcare access
+            "checkup_crudeprev": "% of adults who report having a checkup in past year",
+            "insurance_crudeprev": "% of adults aged 18-64 who report having health insurance coverage",
+            "costbard_crudeprev": "% of adults who report needing to see a doctor in past year but couldn't due to cost",
+            "pcp_crudeprev": "% of adults who report having at least one personal doctor or health care provider",
+            
+            // Mental health
+            "mhlth_crudeprev": "% of adults who report their mental health was not good in ≥14 days in past 30 days",
+            
+            // Socioeconomic
+            "poverty_crudeprev": "% of population living below the federal poverty level",
+            "education_crudeprev": "% of adults aged 25+ with education attainment of at least high school graduate",
+            "income_crudeprev": "% of households with annual income < $15,000",
+            "unemployed_crudeprev": "% of population aged 16+ who are unemployed but seeking work",
+        };
+        
+        async function testApi() {
+            const zipCode = document.getElementById('zipCode').value.trim();
+            if (!zipCode) {
+                alert('Please enter a ZIP code');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.getElementById('loading');
+            const categoriesContainer = document.getElementById('categoriesContainer');
+            const categoriesWrapper = document.getElementById('categoriesWrapper');
+            
+            resultsDiv.style.display = 'none';
+            categoriesContainer.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            resultsDiv.innerHTML = '';
+            categoriesWrapper.innerHTML = '';
+            
+            try {
+                // Get all SDOH-related measures from the CDC PLACES dataset
+                resultsDiv.innerHTML += 'Fetching SDOH measures from CDC PLACES dataset...\n\n';
+                const url = `https://data.cdc.gov/resource/kee5-23sr.json?zcta5=${zipCode}`;
+                
+                const response = await fetch(url);
+                
+                if (response.status === 200) {
+                    const data = await response.json();
+                    resultsDiv.innerHTML += `Found ${data.length} records for ZIP code ${zipCode}\n\n`;
+                    
+                    if (data.length > 0) {
+                        // Group the measures by category
+                        const categories = {
+                            "Health Outcomes": [],
+                            "Health Risk Behaviors": [],
+                            "Prevention": [],
+                            "Health Insurance & Access": [],
+                            "Mental Health": [],
+                            "Cancer-Related": [],
+                            "Socioeconomic": [],
+                            "Other": []
+                        };
+                        
+                        // Process ALL fields, not just prevalence values
+                        const allFields = Object.keys(data[0]);
+                        // Exclude non-measure fields
+                        const excludeFields = ['zcta5', 'stateabbr', 'countyname', 'countyfips', 'tractfips', 'locationid', 'locationname', 'datasource', 'year', 'totalpopulation', 'geolocation'];
+                        const measureFields = allFields.filter(field => 
+                            !excludeFields.includes(field.toLowerCase())
+                        );
+                        
+                        resultsDiv.innerHTML += `Found ${measureFields.length} potential SDOH measures\n`;
+                        
+                        // Helper function to categorize fields
+                        function categorizeField(field) {
+                            const fieldLower = field.toLowerCase();
+                            
+                            if (fieldLower.includes('cancer') || 
+                               fieldLower.includes('mammogram') || 
+                               fieldLower.includes('pap') ||
+                               fieldLower.includes('colon_screen')) {
+                                return "Cancer-Related";
+                            } else if (fieldLower.includes('insurance') || 
+                                     fieldLower.includes('insured') || 
+                                     fieldLower.includes('medicaid') || 
+                                     fieldLower.includes('medicare') ||
+                                     fieldLower.includes('costbard') ||
+                                     fieldLower.includes('pcp') ||
+                                     fieldLower.includes('checkup')) {
+                                return "Health Insurance & Access";
+                            } else if (fieldLower.includes('income') || 
+                                     fieldLower.includes('poverty') || 
+                                     fieldLower.includes('education') || 
+                                     fieldLower.includes('unemploy')) {
+                                return "Socioeconomic";
+                            } else if (fieldLower.includes('smoking') || 
+                                     fieldLower.includes('binge') || 
+                                     fieldLower.includes('lpa') || 
+                                     fieldLower.includes('physical') || 
+                                     fieldLower.includes('obesity') ||
+                                     fieldLower.includes('sleep')) {
+                                return "Health Risk Behaviors";
+                            } else if (fieldLower.includes('depression') || 
+                                     fieldLower.includes('mhlth')) {
+                                return "Mental Health";
+                            } else if (fieldLower.includes('arthritis') || 
+                                     fieldLower.includes('copd') || 
+                                     fieldLower.includes('diabetes') || 
+                                     fieldLower.includes('bphigh') ||
+                                     fieldLower.includes('casthma') ||
+                                     fieldLower.includes('chd') ||
+                                     fieldLower.includes('stroke')) {
+                                return "Health Outcomes";
+                            } else if (fieldLower.includes('screen') || 
+                                     fieldLower.includes('vaccination') || 
+                                     fieldLower.includes('dental') || 
+                                     fieldLower.includes('preventive') ||
+                                     fieldLower.includes('corem')) {
+                                return "Prevention";
+                            } else {
+                                return "Other";
+                            }
+                        }
+                        
+                        // Get measure descriptions from metadata API if needed
+                        async function getMetadata() {
+                            try {
+                                const metaUrl = "https://data.cdc.gov/resource/cwsq-ngmh.json?$limit=1000";
+                                const metaResponse = await fetch(metaUrl);
+                                
+                                if (metaResponse.status === 200) {
+                                    const metaData = await metaResponse.json();
+                                    metaData.forEach(item => {
+                                        if (item.measure && item.short_question_text) {
+                                            // Convert measure to field name format
+                                            const fieldName = item.measure.toLowerCase()
+                                                .replace(/\s+/g, '_')
+                                                .replace(/[^a-z0-9_]/g, '') + '_crudeprev';
+                                            
+                                            // Store description
+                                            if (!measureDescriptions[fieldName]) {
+                                                measureDescriptions[fieldName] = item.short_question_text;
+                                            }
+                                        }
+                                    });
+                                }
+                            } catch (error) {
+                                console.error("Error fetching metadata:", error);
+                            }
+                        }
+                        
+                        // Try to get additional metadata
+                        await getMetadata();
+                        
+                        // Get units and format information
+                        function getMeasureUnit(field, value) {
+                            // Most CDC PLACES measures are percentages
+                            if (field.includes('_crudeprev')) {
+                                return "% of population";
+                            } else if (field.includes('_crudemean') || field.includes('_mean')) {
+                                // Mean values (like mean days)
+                                if (field.includes('mhlth') || field.includes('phlth')) {
+                                    return "mean # of days in past 30 days";
+                                } else {
+                                    return "mean value";
+                                }
+                            } else {
+                                return "value";
+                            }
+                        }
+                        
+                        // Categorize all measure fields
+                        allMeasures = measureFields.map(field => {
+                            const category = categorizeField(field);
+                            
+                            // Clean up field name for display
+                            const cleanFieldName = field
+                                .replace('_crudeprev', '')
+                                .replace('_crudemean', '')
+                                .replace('_crude', '')
+                                .replace('_mean', '')
+                                .replace('_adjusted', '')
+                                .replace(/_/g, ' ');
+                            
+                            // Get a more user-friendly display name
+                            const displayName = cleanFieldName
+                                .split(' ')
+                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(' ');
+                            
+                            // Get value and format it
+                            const value = data[0][field];
+                            const unit = getMeasureUnit(field);
+                            
+                            // Get description
+                            const description = measureDescriptions[field] || 
+                                `${displayName} (${unit})`;
+                            
+                            return {
+                                field,
+                                category,
+                                cleanName: cleanFieldName,
+                                displayName,
+                                value,
+                                unit,
+                                description,
+                                selected: false
+                            };
+                        });
+                        
+                        // Group by category
+                        allMeasures.forEach(measure => {
+                            if (categories[measure.category]) {
+                                categories[measure.category].push(measure);
+                            } else {
+                                categories["Other"].push(measure);
+                            }
+                        });
+                        
+                        // Create UI for categories
+                        for (const [category, measures] of Object.entries(categories)) {
+                            if (measures.length > 0) {
+                                const categoryDiv = document.createElement('div');
+                                categoryDiv.className = 'category';
+                                
+                                const titleDiv = document.createElement('div');
+                                titleDiv.className = 'category-title';
+                                titleDiv.textContent = `${category} (${measures.length})`;
+                                categoryDiv.appendChild(titleDiv);
+                                
+                                measures.forEach(measure => {
+                                    const measureDiv = document.createElement('div');
+                                    measureDiv.className = 'measure-item';
+                                    measureDiv.dataset.field = measure.field;
+                                    measureDiv.title = measure.description;
+                                    
+                                    const checkbox = document.createElement('input');
+                                    checkbox.type = 'checkbox';
+                                    checkbox.className = 'measure-checkbox';
+                                    checkbox.dataset.field = measure.field;
+                                    checkbox.onchange = function() {
+                                        const field = this.dataset.field;
+                                        const measureIndex = allMeasures.findIndex(m => m.field === field);
+                                        if (measureIndex >= 0) {
+                                            allMeasures[measureIndex].selected = this.checked;
+                                            updateSelectedCount();
+                                        }
+                                    };
+                                    
+                                    const nameSpan = document.createElement('span');
+                                    nameSpan.className = 'measure-name';
+                                    nameSpan.textContent = measure.displayName;
+                                    
+                                    const descriptionSpan = document.createElement('span');
+                                    descriptionSpan.className = 'measure-description';
+                                    descriptionSpan.textContent = measure.description;
+                                    
+                                    const valueSpan = document.createElement('span');
+                                    valueSpan.className = 'measure-value';
+                                    valueSpan.textContent = measure.value;
+                                    valueSpan.title = `${measure.unit}`;
+                                    
+                                    const fieldSpan = document.createElement('span');
+                                    fieldSpan.className = 'measure-field';
+                                    fieldSpan.textContent = measure.field;
+                                    
+                                    const unitSpan = document.createElement('span');
+                                    unitSpan.className = 'measure-unit';
+                                    unitSpan.textContent = `(${measure.unit})`;
+                                    
+                                    measureDiv.appendChild(checkbox);
+                                    measureDiv.appendChild(nameSpan);
+                                    nameSpan.appendChild(document.createElement('br'));
+                                    nameSpan.appendChild(descriptionSpan);
+                                    measureDiv.appendChild(valueSpan);
+                                    measureDiv.appendChild(unitSpan);
+                                    measureDiv.appendChild(fieldSpan);
+                                    
+                                    categoryDiv.appendChild(measureDiv);
+                                });
+                                
+                                categoriesWrapper.appendChild(categoryDiv);
+                            }
+                        }
+                        
+                        // Add dataset metadata section
+                        const metadataDiv = document.createElement('div');
+                        metadataDiv.className = 'dataset-metadata';
+                        metadataDiv.innerHTML = `
+                            <h3>About CDC PLACES Dataset</h3>
+                            <p>The CDC PLACES dataset provides model-based population-level analysis and community estimates for health measures at various geographic levels.</p>
+                            <p><strong>Data Sources:</strong> Behavioral Risk Factor Surveillance System (BRFSS), Census data, American Community Survey</p>
+                            <p><strong>Geographic Levels:</strong> Census tract, county, ZIP Code Tabulation Area (ZCTA), and state</p>
+                            <p><strong>Most Recent Data:</strong> ${data[0].year || 'Not specified'}</p>
+                            <p><strong>Measures:</strong> Most measures are reported as <strong>percentages (%) of the population</strong> with the given condition or behavior.</p>
+                        `;
+                        
+                        categoriesWrapper.appendChild(metadataDiv);
+                        
+                        resultsDiv.style.display = 'none';
+                        categoriesContainer.style.display = 'block';
+                    } else {
+                        resultsDiv.innerHTML += `No data found for ZIP code ${zipCode}. Please try another ZIP code.`;
+                        resultsDiv.style.display = 'block';
+                    }
+                } else {
+                    const errorText = await response.text();
+                    resultsDiv.innerHTML += `Error: ${errorText}`;
+                    resultsDiv.style.display = 'block';
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `Error: ${error.message}`;
+                resultsDiv.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+        
+        function updateSelectedCount() {
+            const selectedCount = allMeasures.filter(m => m.selected).length;
+            document.getElementById('selectedCount').textContent = `${selectedCount} measures selected`;
+        }
+        
+        function filterMeasures() {
+            const filterText = document.getElementById('filterInput').value.toLowerCase();
+            const items = document.querySelectorAll('.measure-item');
+            
+            items.forEach(item => {
+                const field = item.dataset.field;
+                const measure = allMeasures.find(m => m.field === field);
+                
+                if (measure) {
+                    const matchesFilter = 
+                        measure.cleanName.toLowerCase().includes(filterText) ||
+                        measure.description.toLowerCase().includes(filterText) ||
+                        measure.field.toLowerCase().includes(filterText) ||
+                        measure.category.toLowerCase().includes(filterText);
+                    
+                    item.style.display = matchesFilter ? 'flex' : 'none';
+                }
+            });
+        }
+        
+        function generateCode() {
+            const selectedMeasures = allMeasures.filter(m => m.selected);
+            if (selectedMeasures.length === 0) {
+                alert('Please select at least one measure');
+                return;
+            }
+            
+            const codeBox = document.getElementById('codeBox');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            let code = `# Function to fetch selected SDOH measures from CDC PLACES API\n`;
+            code += `def get_cdc_places_measures(zip_code):\n`;
+            code += `    \"\"\"\n`;
+            code += `    Get selected SDOH measures from CDC PLACES API for a ZIP code.\n`;
+            code += `    \n`;
+            code += `    Args:\n`;
+            code += `        zip_code: ZIP code to search for\n`;
+            code += `        \n`;
+            code += `    Returns:\n`;
+            code += `        Dictionary of SDOH measures or empty dict if not available\n`;
+            code += `    \"\"\"\n`;
+            code += `    try:\n`;
+            code += `        # Extract just the 5-digit base ZIP code if it's in ZIP+4 format\n`;
+            code += `        base_zip = zip_code.split('-')[0]\n`;
+            code += `        # Ensure 5 digits with leading zeros if needed\n`;
+            code += `        base_zip = base_zip.zfill(5)\n`;
+            code += `        \n`;
+            code += `        logger.info(f"Fetching CDC PLACES measures for ZIP: {base_zip}")\n`;
+            code += `        \n`;
+            code += `        # Use the correct ZCTA dataset with zcta5 field\n`;
+            code += `        url = "https://data.cdc.gov/resource/kee5-23sr.json"\n`;
+            code += `        params = {"zcta5": base_zip}\n`;
+            code += `        \n`;
+            code += `        response = requests.get(url, params=params, timeout=15)\n`;
+            code += `        \n`;
+            code += `        if response.status_code == 200:\n`;
+            code += `            data = response.json()\n`;
+            code += `            \n`;
+            code += `            if data and len(data) > 0:\n`;
+            code += `                # Extract the measures we want\n`;
+            code += `                measures = {}\n`;
+            
+            selectedMeasures.forEach(measure => {
+                const commentText = measure.description || measure.displayName;
+                code += `                # ${commentText} (${measure.unit})\n`;
+                code += `                if "${measure.field}" in data[0]:\n`;
+                code += `                    try:\n`;
+                code += `                        measures["${measure.cleanName}"] = float(data[0]["${measure.field}"])\n`;
+                code += `                    except (ValueError, TypeError):\n`;
+                code += `                        measures["${measure.cleanName}"] = -1\n`;
+                code += `                else:\n`;
+                code += `                    measures["${measure.cleanName}"] = -1\n`;
+                code += `                \n`;
+            });
+            
+            code += `                return measures\n`;
+            code += `            else:\n`;
+            code += `                logger.warning(f"No data found for ZIP {base_zip}")\n`;
+            code += `                return {}\n`;
+            code += `        else:\n`;
+            code += `            logger.warning(f"API request failed with status {response.status_code}")\n`;
+            code += `            return {}\n`;
+            code += `            \n`;
+            code += `    except Exception as e:\n`;
+            code += `        logger.error(f"Error fetching CDC PLACES measures for ZIP {zip_code}: {str(e)}")\n`;
+            code += `        return {}\n`;
+            
+            codeBox.textContent = code;
+            copyBtn.style.display = 'block';
+        }
+        
+        function copyCode() {
+            const codeBox = document.getElementById('codeBox');
+            const text = codeBox.textContent;
+            
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    alert('Code copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+        }
+    </script>
+</body>
+</html>
