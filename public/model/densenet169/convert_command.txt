@@ -1,3 +1,0 @@
-# Run this command in a clean environment with tensorflowjs installed:
-tensorflowjs_converter --input_format=tf_saved_model public/model/densenet169/ public/model/densenet169/_web
-# Then copy files from public/model/densenet169/_web to public/model/densenet169/
