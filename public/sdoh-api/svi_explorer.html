@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDC SVI Dataset Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #results {
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        #loading {
+            display: none;
+            margin-top: 20px;
+        }
+        .category {
+            margin-top: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f5f5f5;
+        }
+        .theme {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .category-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .theme-title {
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        .measure-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .measure-item:hover {
+            background-color: #e9f7fe;
+        }
+        .measure-checkbox {
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+        .measure-name {
+            flex-grow: 1;
+        }
+        .measure-value {
+            min-width: 80px;
+            text-align: right;
+            color: #2980b9;
+            margin-right: 10px;
+        }
+        .measure-field {
+            font-size: 12px;
+            color: #7f8c8d;
+            width: 200px;
+            font-family: monospace;
+        }
+        .measure-description {
+            font-size: 12px;
+            color: #666;
+            display: block;
+            margin-top: 4px;
+        }
+        .selected-container {
+            margin-top: 30px;
+        }
+        .code-box {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .copy-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #27ae60;
+        }
+        .filter-input {
+            padding: 8px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .dataset-metadata {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .theme-explainer {
+            padding: 10px;
+            background-color: #eaf7fb;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CDC Social Vulnerability Index (SVI) Explorer</h1>
+        <p>Explore CDC's Social Vulnerability Index data at the ZIP code level. SVI helps identify communities that may need support before, during, or after disasters.</p>
+        
+        <div class="input-group">
+            <label for="zipCode">Enter ZIP Code:</label>
+            <input type="text" id="zipCode" placeholder="e.g., 10001">
+            <button onclick="exploreSVI()">Explore SVI Data</button>
+        </div>
+        
+        <div id="loading">Loading data... please wait</div>
+        
+        <div id="results"></div>
+        
+        <div id="categoriesContainer" style="display: none;">
+            <h2>SVI Variables by Theme</h2>
+            <p>The CDC's Social Vulnerability Index (SVI) organizes vulnerability factors into four themes:</p>
+            
+            <div class="theme-explainer">
+                <p><strong>Theme 1: Socioeconomic Status</strong> - Income, poverty, employment, and education variables</p>
+                <p><strong>Theme 2: Household Composition & Disability</strong> - Age, single parenting, and disability variables</p>
+                <p><strong>Theme 3: Minority Status & Language</strong> - Race, ethnicity, and English language proficiency</p>
+                <p><strong>Theme 4: Housing Type & Transportation</strong> - Housing structure, crowding, and vehicle access</p>
+            </div>
+            
+            <input type="text" id="filterInput" class="filter-input" placeholder="Filter variables..." onkeyup="filterMeasures()">
+            
+            <div id="categoriesWrapper"></div>
+            
+            <div class="selected-container">
+                <h2>Selected Variables</h2>
+                <div id="selectedCount">0 variables selected</div>
+                <button onclick="generateCode()" class="copy-btn">Generate Python Code</button>
+                <div id="codeBox" class="code-box"></div>
+                <button id="copyBtn" onclick="copyCode()" class="copy-btn" style="display: none;">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let allMeasures = [];
+        let sviDescriptions = {
+            // Theme 1: Socioeconomic Status
+            "EP_POV": "Percentage of persons below 150% poverty",
+            "EP_UNEMP": "Percentage of civilian (age 16+) unemployed",
+            "EP_PCI": "Per capita income",
+            "EP_NOHSDP": "Percentage of persons with no high school diploma (age 25+)",
+            
+            // Theme 2: Household Composition & Disability
+            "EP_AGE65": "Percentage of persons aged 65 and older",
+            "EP_AGE17": "Percentage of persons aged 17 and younger",
+            "EP_DISABL": "Percentage of civilian non-institutionalized population with a disability",
+            "EP_SNGPNT": "Percentage of single parent households with children under 18",
+            
+            // Theme 3: Minority Status & Language
+            "EP_MINRTY": "Percentage of minority (all persons except white, non-Hispanic)",
+            "EP_LIMENG": "Percentage of persons (age 5+) who speak English \"less than well\"",
+            
+            // Theme 4: Housing Type & Transportation
+            "EP_MUNIT": "Percentage of housing in structures with 10 or more units",
+            "EP_MOBILE": "Percentage of mobile homes",
+            "EP_CROWD": "Percentage of occupied housing units with more people than rooms",
+            "EP_NOVEH": "Percentage of households with no vehicle",
+            "EP_GROUPQ": "Percentage of persons in group quarters",
+            
+            // Summary Measures
+            "RPL_THEME1": "Socioeconomic status theme summary ranking",
+            "RPL_THEME2": "Household Composition & Disability theme summary ranking",
+            "RPL_THEME3": "Minority Status & Language theme summary ranking",
+            "RPL_THEME4": "Housing Type & Transportation theme summary ranking",
+            "RPL_THEMES": "Overall Social Vulnerability Index summary ranking",
+            
+            // Population
+            "E_TOTPOP": "Total population",
+            "E_HU": "Total housing units",
+            "E_HH": "Total households"
+        };
+        
+        async function exploreSVI() {
+            const zipCode = document.getElementById('zipCode').value.trim();
+            if (!zipCode) {
+                alert('Please enter a ZIP code');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.getElementById('loading');
+            const categoriesContainer = document.getElementById('categoriesContainer');
+            const categoriesWrapper = document.getElementById('categoriesWrapper');
+            
+            resultsDiv.style.display = 'none';
+            categoriesContainer.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            resultsDiv.innerHTML = '';
+            categoriesWrapper.innerHTML = '';
+            
+            try {
+                // Load the SVI data from the local CSV file
+                resultsDiv.innerHTML += 'Loading SVI data for ZIP code ' + zipCode + '...\n\n';
+                
+                // Normally we would fetch data directly from CDC's API, but for this example
+                // we'll assume the SVI_2022_US_ZCTA.csv file exists locally and load the data
+                
+                // Simulate loading data from the SVI file for the given ZIP code
+                // In a real implementation, this would read from the CSV file or call an API
+                const sviData = simulateSVIData(zipCode);
+                
+                if (sviData) {
+                    resultsDiv.innerHTML += `Found SVI data for ZIP code ${zipCode}\n\n`;
+                    
+                    // Define categories based on SVI themes
+                    const categories = {
+                        "Socioeconomic Status (Theme 1)": [],
+                        "Household Composition & Disability (Theme 2)": [],
+                        "Minority Status & Language (Theme 3)": [],
+                        "Housing Type & Transportation (Theme 4)": [],
+                        "Summary Rankings": [],
+                        "Population Estimates": []
+                    };
+                    
+                    // Organize fields by theme
+                    for (const [field, value] of Object.entries(sviData)) {
+                        let category;
+                        let description = sviDescriptions[field] || field;
+                        
+                        // Determine category based on field prefix
+                        if (field.startsWith('EP_POV') || field.startsWith('EP_UNEMP') || 
+                            field.startsWith('EP_PCI') || field.startsWith('EP_NOHSDP') ||
+                            field === 'RPL_THEME1') {
+                            category = "Socioeconomic Status (Theme 1)";
+                        } 
+                        else if (field.startsWith('EP_AGE') || field.startsWith('EP_DISABL') || 
+                                field.startsWith('EP_SNGPNT') || field === 'RPL_THEME2') {
+                            category = "Household Composition & Disability (Theme 2)";
+                        }
+                        else if (field.startsWith('EP_MINRTY') || field.startsWith('EP_LIMENG') ||
+                                field === 'RPL_THEME3') {
+                            category = "Minority Status & Language (Theme 3)";
+                        }
+                        else if (field.startsWith('EP_MUNIT') || field.startsWith('EP_MOBILE') ||
+                                field.startsWith('EP_CROWD') || field.startsWith('EP_NOVEH') ||
+                                field.startsWith('EP_GROUPQ') || field === 'RPL_THEME4') {
+                            category = "Housing Type & Transportation (Theme 4)";
+                        }
+                        else if (field.startsWith('RPL_')) {
+                            category = "Summary Rankings";
+                        }
+                        else if (field.startsWith('E_') || field.startsWith('M_')) {
+                            category = "Population Estimates";
+                        }
+                        else {
+                            category = "Other Variables";
+                        }
+                        
+                        // Get unit/format info
+                        let unit = getUnitInfo(field);
+                        
+                        // Create standardized field data
+                        const measureData = {
+                            field: field,
+                            category: category,
+                            value: value,
+                            displayName: formatDisplayName(field),
+                            description: description,
+                            unit: unit,
+                            selected: false
+                        };
+                        
+                        // Add to appropriate category
+                        if (categories[category]) {
+                            categories[category].push(measureData);
+                        } else {
+                            // Create category if it doesn't exist
+                            categories[category] = [measureData];
+                        }
+                        
+                        // Add to global list
+                        allMeasures.push(measureData);
+                    }
+                    
+                    // Create UI for each category
+                    for (const [category, measures] of Object.entries(categories)) {
+                        if (measures.length > 0) {
+                            const categoryDiv = document.createElement('div');
+                            categoryDiv.className = 'category';
+                            
+                            const titleDiv = document.createElement('div');
+                            titleDiv.className = 'category-title';
+                            titleDiv.textContent = `${category} (${measures.length})`;
+                            categoryDiv.appendChild(titleDiv);
+                            
+                            measures.forEach(measure => {
+                                const measureDiv = document.createElement('div');
+                                measureDiv.className = 'measure-item';
+                                measureDiv.dataset.field = measure.field;
+                                measureDiv.title = measure.description;
+                                
+                                const checkbox = document.createElement('input');
+                                checkbox.type = 'checkbox';
+                                checkbox.className = 'measure-checkbox';
+                                checkbox.dataset.field = measure.field;
+                                checkbox.onchange = function() {
+                                    const field = this.dataset.field;
+                                    const measureIndex = allMeasures.findIndex(m => m.field === field);
+                                    if (measureIndex >= 0) {
+                                        allMeasures[measureIndex].selected = this.checked;
+                                        updateSelectedCount();
+                                    }
+                                };
+                                
+                                const nameSpan = document.createElement('span');
+                                nameSpan.className = 'measure-name';
+                                nameSpan.textContent = measure.displayName;
+                                
+                                const descriptionSpan = document.createElement('span');
+                                descriptionSpan.className = 'measure-description';
+                                descriptionSpan.textContent = measure.description;
+                                
+                                const valueSpan = document.createElement('span');
+                                valueSpan.className = 'measure-value';
+                                valueSpan.textContent = measure.value;
+                                
+                                const unitSpan = document.createElement('span');
+                                unitSpan.className = 'measure-unit';
+                                unitSpan.textContent = ` (${measure.unit})`;
+                                
+                                const fieldSpan = document.createElement('span');
+                                fieldSpan.className = 'measure-field';
+                                fieldSpan.textContent = measure.field;
+                                
+                                measureDiv.appendChild(checkbox);
+                                measureDiv.appendChild(nameSpan);
+                                nameSpan.appendChild(document.createElement('br'));
+                                nameSpan.appendChild(descriptionSpan);
+                                measureDiv.appendChild(valueSpan);
+                                measureDiv.appendChild(unitSpan);
+                                measureDiv.appendChild(fieldSpan);
+                                
+                                categoryDiv.appendChild(measureDiv);
+                            });
+                            
+                            categoriesWrapper.appendChild(categoryDiv);
+                        }
+                    }
+                    
+                    // Add dataset metadata section
+                    const metadataDiv = document.createElement('div');
+                    metadataDiv.className = 'dataset-metadata';
+                    metadataDiv.innerHTML = `
+                        <h3>About CDC Social Vulnerability Index (SVI)</h3>
+                        <p>The CDC SVI uses 15 U.S. census variables to help local officials identify communities that may need support before, during, or after disasters.</p>
+                        <p><strong>Data Sources:</strong> U.S. Census Bureau's American Community Survey (ACS)</p>
+                        <p><strong>Geographic Levels:</strong> Census tract, county, and ZIP Code Tabulation Area (ZCTA)</p>
+                        <p><strong>SVI Rankings:</strong> Range from 0 (lowest vulnerability) to 1 (highest vulnerability)</p>
+                        <p><strong>EP_ Variables:</strong> Represent percentages or per capita values (e.g., EP_POV = % below poverty)</p>
+                        <p><strong>E_ Variables:</strong> Represent estimates (raw counts)</p>
+                        <p><strong>M_ Variables:</strong> Represent margins of error for estimates</p>
+                        <p><strong>RPL_ Variables:</strong> Represent percentile rankings</p>
+                    `;
+                    
+                    categoriesWrapper.appendChild(metadataDiv);
+                    
+                    resultsDiv.style.display = 'none';
+                    categoriesContainer.style.display = 'block';
+                } else {
+                    resultsDiv.innerHTML += `No SVI data found for ZIP code ${zipCode}. Please try another ZIP code.\n\n`;
+                    resultsDiv.innerHTML += `Note: This demo uses simulated data. In a real implementation, data would be loaded from the SVI_2022_US_ZCTA.csv file or fetched from the CDC API.`;
+                    resultsDiv.style.display = 'block';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `Error: ${error.message}\n`;
+                resultsDiv.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+        
+        function simulateSVIData(zipCode) {
+            // In a real implementation, this would read from the CSV file or call an API
+            // For this demo, we'll return simulated data
+            
+            // Only return data for ZIP codes that start with certain digits (for demo purposes)
+            if (!zipCode.match(/^[0-9]{5}$/)) {
+                return null;  // Invalid ZIP format
+            }
+            
+            // Generate random SVI data
+            return {
+                "FIPS": zipCode,
+                "LOCATION": `ZCTA5 ${zipCode}`,
+                "ST_ABBR": getStateFromZIP(zipCode),
+                
+                // Theme 1: Socioeconomic Status
+                "EP_POV": (Math.random() * 30).toFixed(1),
+                "EP_UNEMP": (Math.random() * 15).toFixed(1),
+                "EP_PCI": Math.floor(20000 + Math.random() * 60000),
+                "EP_NOHSDP": (Math.random() * 25).toFixed(1),
+                
+                // Theme 2: Household Composition & Disability
+                "EP_AGE65": (Math.random() * 25).toFixed(1),
+                "EP_AGE17": (Math.random() * 30).toFixed(1),
+                "EP_DISABL": (Math.random() * 20).toFixed(1),
+                "EP_SNGPNT": (Math.random() * 15).toFixed(1),
+                
+                // Theme 3: Minority Status & Language
+                "EP_MINRTY": (Math.random() * 60).toFixed(1),
+                "EP_LIMENG": (Math.random() * 12).toFixed(1),
+                
+                // Theme 4: Housing Type & Transportation
+                "EP_MUNIT": (Math.random() * 30).toFixed(1),
+                "EP_MOBILE": (Math.random() * 15).toFixed(1),
+                "EP_CROWD": (Math.random() * 10).toFixed(1),
+                "EP_NOVEH": (Math.random() * 25).toFixed(1),
+                "EP_GROUPQ": (Math.random() * 5).toFixed(1),
+                
+                // Population
+                "E_TOTPOP": Math.floor(5000 + Math.random() * 25000),
+                "E_HU": Math.floor(2000 + Math.random() * 10000),
+                "E_HH": Math.floor(1800 + Math.random() * 9000),
+                
+                // Summary Scores (percentile rankings)
+                "RPL_THEME1": (Math.random()).toFixed(4),
+                "RPL_THEME2": (Math.random()).toFixed(4),
+                "RPL_THEME3": (Math.random()).toFixed(4),
+                "RPL_THEME4": (Math.random()).toFixed(4),
+                "RPL_THEMES": (Math.random()).toFixed(4)
+            };
+        }
+        
+        function getStateFromZIP(zip) {
+            // Simplified mapping of ZIP code first digits to states
+            const firstDigit = zip.charAt(0);
+            const stateMap = {
+                '0': 'CT', '1': 'NY', '2': 'DC', '3': 'FL', '4': 'MI',
+                '5': 'MN', '6': 'IL', '7': 'TX', '8': 'CO', '9': 'CA'
+            };
+            return stateMap[firstDigit] || 'XX';
+        }
+        
+        function formatDisplayName(field) {
+            // Convert field names to readable display names
+            return field
+                .replace('EP_', '')
+                .replace('RPL_', '')
+                .replace('E_', '')
+                .replace('M_', '')
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        }
+        
+        function getUnitInfo(field) {
+            // Determine the unit/format based on field prefix
+            if (field.startsWith('EP_')) {
+                if (field === 'EP_PCI') return 'dollars';
+                return 'percent';
+            } else if (field.startsWith('RPL_')) {
+                return 'ranking (0-1)';
+            } else if (field.startsWith('E_')) {
+                return 'count';
+            } else if (field.startsWith('M_')) {
+                return 'margin of error';
+            }
+            return 'value';
+        }
+        
+        function updateSelectedCount() {
+            const selectedCount = allMeasures.filter(m => m.selected).length;
+            document.getElementById('selectedCount').textContent = `${selectedCount} variables selected`;
+        }
+        
+        function filterMeasures() {
+            const filterText = document.getElementById('filterInput').value.toLowerCase();
+            const items = document.querySelectorAll('.measure-item');
+            
+            items.forEach(item => {
+                const field = item.dataset.field;
+                const measure = allMeasures.find(m => m.field === field);
+                
+                if (measure) {
+                    const matchesFilter = 
+                        measure.displayName.toLowerCase().includes(filterText) ||
+                        measure.description.toLowerCase().includes(filterText) ||
+                        measure.field.toLowerCase().includes(filterText) ||
+                        measure.category.toLowerCase().includes(filterText);
+                    
+                    item.style.display = matchesFilter ? 'flex' : 'none';
+                }
+            });
+        }
+        
+        function generateCode() {
+            const selectedMeasures = allMeasures.filter(m => m.selected);
+            if (selectedMeasures.length === 0) {
+                alert('Please select at least one variable');
+                return;
+            }
+            
+            const codeBox = document.getElementById('codeBox');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            let code = `# Function to extract selected SVI variables from local CSV file\n`;
+            code += `def get_svi_variables(zip_code):\n`;
+            code += `    \"\"\"\n`;
+            code += `    Get selected CDC SVI variables for a ZIP code from the SVI_2022_US_ZCTA.csv file.\n`;
+            code += `    \n`;
+            code += `    Args:\n`;
+            code += `        zip_code: ZIP code to search for\n`;
+            code += `        \n`;
+            code += `    Returns:\n`;
+            code += `        Dictionary of SVI variables or empty dict if not available\n`;
+            code += `    \"\"\"\n`;
+            code += `    try:\n`;
+            code += `        # Extract just the 5-digit base ZIP code if it's in ZIP+4 format\n`;
+            code += `        base_zip = zip_code.split('-')[0]\n`;
+            code += `        # Ensure 5 digits with leading zeros if needed\n`;
+            code += `        base_zip = base_zip.zfill(5)\n`;
+            code += `        \n`;
+            code += `        logger.info(f"Fetching SVI variables for ZIP: {base_zip}")\n`;
+            code += `        \n`;
+            code += `        # Path to the SVI data file\n`;
+            code += `        svi_file_path = os.path.join(os.path.dirname(__file__), 'SVI_2022_US_ZCTA.csv')\n`;
+            code += `        \n`;
+            code += `        if not os.path.exists(svi_file_path):\n`;
+            code += `            logger.error(f"SVI data file not found: {svi_file_path}")\n`;
+            code += `            return {}\n`;
+            code += `        \n`;
+            code += `        # Read the SVI data for this ZIP code\n`;
+            code += `        svi_df = pd.read_csv(svi_file_path)\n`;
+            code += `        \n`;
+            code += `        # Find the row for this ZIP code\n`;
+            code += `        svi_row = svi_df[svi_df['FIPS'] == base_zip]\n`;
+            code += `        \n`;
+            code += `        if svi_row.empty:\n`;
+            code += `            # Try looking for ZCTA5 format\n`;
+            code += `            location_pattern = f"ZCTA5 {base_zip}"\n`;
+            code += `            svi_row = svi_df[svi_df['LOCATION'] == location_pattern]\n`;
+            code += `        \n`;
+            code += `        if not svi_row.empty:\n`;
+            code += `            # Extract the variables we want\n`;
+            code += `            variables = {}\n`;
+            
+            selectedMeasures.forEach(measure => {
+                const commentText = measure.description || measure.displayName;
+                code += `            # ${commentText} (${measure.unit})\n`;
+                code += `            if "${measure.field}" in svi_row.columns:\n`;
+                code += `                try:\n`;
+                code += `                    variables["${measure.displayName}"] = float(svi_row["${measure.field}"].iloc[0])\n`;
+                code += `                except (ValueError, TypeError):\n`;
+                code += `                    variables["${measure.displayName}"] = -1\n`;
+                code += `            else:\n`;
+                code += `                variables["${measure.displayName}"] = -1\n`;
+                code += `            \n`;
+            });
+            
+            code += `            return variables\n`;
+            code += `        else:\n`;
+            code += `            logger.warning(f"No SVI data found for ZIP {base_zip}")\n`;
+            code += `            return {}\n`;
+            code += `            \n`;
+            code += `    except Exception as e:\n`;
+            code += `        logger.error(f"Error fetching SVI variables for ZIP {zip_code}: {str(e)}")\n`;
+            code += `        return {}\n`;
+            
+            codeBox.textContent = code;
+            copyBtn.style.display = 'block';
+        }
+        
+        function copyCode() {
+            const codeBox = document.getElementById('codeBox');
+            const text = codeBox.textContent;
+            
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    alert('Code copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+        }
+    </script>
+</body>
+</html>

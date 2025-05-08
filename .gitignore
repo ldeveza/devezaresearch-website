@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# model files
+/model-tools/ 
+/model-assets/ 
+/model-api/
+
+# Large model files
+*.keras
+*.pb
+*.h5
+*.data-00000-of-00001
+*.index
