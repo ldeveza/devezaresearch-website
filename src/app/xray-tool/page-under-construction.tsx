@@ -29,7 +29,7 @@ export default function XrayToolPage() {
           
           <p className="text-lg mb-4 max-w-2xl mx-auto">
             Our X-ray fracture detection tool is currently under development. 
-            We're working on integrating a machine learning model to detect 
+            We&apos;re working on integrating a machine learning model to detect 
             distal radius fractures from multiple X-ray views.
           </p>
         </div>

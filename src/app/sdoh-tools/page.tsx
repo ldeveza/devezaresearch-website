@@ -27,7 +27,7 @@ export default function SDOHToolsPage() {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">CDC Social Vulnerability Index (SVI) Explorer</h2>
           <p className="mb-4">
-            Explore CDC's Social Vulnerability Index data at the ZIP code level. SVI helps identify communities 
+            Explore CDC&apos;s Social Vulnerability Index data at the ZIP code level. SVI helps identify communities 
             that may need support before, during, or after disasters.
           </p>
           <Link 
