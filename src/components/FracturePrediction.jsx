@@ -1,9 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 
-// Update this with your deployed Cloud Run URL
-// When you get your Cloud Run URL, replace the value below
-const API_URL = 'http://localhost:8080'; // Replace with https://xray-api-xxxxxxxx-uc.a.run.app
+// Using the Render.com deployed API URL
+const API_URL = 'https://dr3vbinary-api.onrender.com';
 import Image from 'next/image';
 
 export default function FracturePrediction() {
@@ -144,7 +143,7 @@ export default function FracturePrediction() {
     
     return (
       <div className="mt-6 p-4 rounded-lg border shadow">
-        <h3 className="text-xl font-semibold mb-2 text-blue-600">Fracture Prediction Result</h3>
+        <h3 className="text-xl font-semibold mb-2 text-navy-700">Fracture Prediction Result</h3>
         
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div className="w-full md:w-1/2">
@@ -161,14 +160,14 @@ export default function FracturePrediction() {
             
             <p className="text-lg">
               Assessment: 
-              <span className={`ml-2 font-bold ${isHighRisk ? 'text-red-500' : 'text-green-500'}`}>
+              <span className={`ml-2 font-bold ${isHighRisk ? 'text-navy-500' : 'text-green-500'}`}>
                 {isHighRisk ? 'High risk of fracture' : 'Low risk of fracture'}
               </span>
             </p>
           </div>
           
-          <div className="w-full md:w-1/2 p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-semibold text-blue-600 mb-2">Interpretation Guidelines:</h4>
+          <div className="w-full md:w-1/2 p-4 bg-navy-50 rounded-lg">
+            <h4 className="font-semibold text-navy-700 mb-2">Interpretation Guidelines:</h4>
             <ul className="list-disc pl-5">
               <li>Probability below 50%: Low likelihood of fracture</li>
               <li>Probability above 50%: High likelihood of fracture</li>
@@ -192,8 +191,18 @@ export default function FracturePrediction() {
 
   return (
     <div className="max-w-4xl mx-auto my-8 p-6 bg-white rounded-lg shadow-md">
+      {/* Add Tailwind navy colors to the top of the component */}
+      <style jsx global>{`
+        .text-navy-700 { color: #1e3a8a; }
+        .text-navy-900 { color: #0c1c44; }
+        .bg-navy-50 { background-color: #f0f5ff; }
+        .bg-navy-700 { background-color: #1e3a8a; }
+        .bg-navy-800 { background-color: #172b6e; }
+        .hover\:bg-navy-800:hover { background-color: #172b6e; }
+        .hover\:text-navy-900:hover { color: #0c1c44; }
+      `}</style>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-blue-600">X-Ray Fracture Detection</h2>
+        <h2 className="text-2xl font-bold text-navy-700">X-Ray Fracture Detection</h2>
         
         <div className="flex items-center">
           <span className="mr-2">API Status:</span>
@@ -236,7 +245,7 @@ export default function FracturePrediction() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* AP View */}
           <div className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-medium mb-2 text-blue-600">AP View</h3>
+            <h3 className="text-lg font-medium mb-2 text-navy-700">AP View</h3>
             <div className="h-48 bg-gray-100 flex justify-center items-center mb-2 relative">
               {previews.ap ? (
                 <div className="relative w-full h-full">
@@ -261,7 +270,7 @@ export default function FracturePrediction() {
           
           {/* Lateral View */}
           <div className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-medium mb-2 text-blue-600">Lateral View</h3>
+            <h3 className="text-lg font-medium mb-2 text-navy-700">Lateral View</h3>
             <div className="h-48 bg-gray-100 flex justify-center items-center mb-2 relative">
               {previews.lat ? (
                 <div className="relative w-full h-full">
@@ -286,7 +295,7 @@ export default function FracturePrediction() {
           
           {/* Oblique View */}
           <div className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-medium mb-2 text-blue-600">Oblique View</h3>
+            <h3 className="text-lg font-medium mb-2 text-navy-700">Oblique View</h3>
             <div className="h-48 bg-gray-100 flex justify-center items-center mb-2 relative">
               {previews.ob ? (
                 <div className="relative w-full h-full">
@@ -313,7 +322,7 @@ export default function FracturePrediction() {
         <div className="flex justify-center">
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-800 text-white font-medium py-2 px-6 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-navy-700 hover:bg-navy-800 text-white font-medium py-2 px-6 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading || apiStatus === 'offline'}
           >
             {loading ? (
