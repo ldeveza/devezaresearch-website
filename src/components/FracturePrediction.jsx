@@ -23,31 +23,41 @@ export default function FracturePrediction() {
   useEffect(() => {
     const checkApiStatus = async () => {
       try {
+        console.log('Checking API status at:', `${API_URL}/health`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
         const response = await fetch(`${API_URL}/health`, { 
           method: 'GET',
           cache: 'no-cache',
+          signal: controller.signal,
           headers: {
-            'Cache-Control': 'no-cache'
+            'Cache-Control': 'no-cache',
+            'Accept': 'application/json'
           }
         });
         
+        clearTimeout(timeoutId);
+        
+        console.log('API health response:', response.status, response.statusText);
         if (response.ok) {
           setApiStatus('online');
+          console.log('API is online');
         } else {
           setApiStatus('offline');
+          console.log('API is offline - bad response:', response.status);
         }
-      } catch (err) {
-        console.error('API health check failed:', err);
+      } catch (error) {
+        console.error('Error checking API status:', error);
         setApiStatus('offline');
+        setError(`API connection error: ${error.message}`);
       }
     };
-
+    
     checkApiStatus();
-    
-    // Set up a periodic health check
-    const intervalId = setInterval(checkApiStatus, 30000); // Check every 30 seconds
-    
-    return () => clearInterval(intervalId); // Cleanup on unmount
+    // Check API status every 30 seconds
+    const intervalId = setInterval(checkApiStatus, 30000);
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleImageChange = (e, view) => {
@@ -116,10 +126,21 @@ export default function FracturePrediction() {
     formData.append('ob', obImage);
     
     try {
+      // Add timeout and better error handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
       const response = await fetch(`${API_URL}/predict`, {
         method: 'POST',
         body: formData,
+        signal: controller.signal,
+        // Add explicit headers
+        headers: {
+          'Accept': 'application/json',
+        },
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
