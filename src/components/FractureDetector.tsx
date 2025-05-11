@@ -99,31 +99,34 @@ export default function FractureDetector() {
         <div>
           <div className={styles.imageUploadContainer}>
             <div className={styles.imageUpload}>
-              <label>AP View</label>
+              <label className="font-bold text-black">AP View</label>
               <input 
                 type="file" 
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'ap')} 
+                className="text-black"
               />
               {apImageSrc && <img src={apImageSrc} alt="AP View" width="150" />}
             </div>
             
             <div className={styles.imageUpload}>
-              <label>Lateral View</label>
+              <label className="font-bold text-black">Lateral View</label>
               <input 
                 type="file" 
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'lat')} 
+                className="text-black"
               />
               {latImageSrc && <img src={latImageSrc} alt="Lateral View" width="150" />}
             </div>
             
             <div className={styles.imageUpload}>
-              <label>Oblique View</label>
+              <label className="font-bold text-black">Oblique View</label>
               <input 
                 type="file" 
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e, 'ob')} 
+                className="text-black"
               />
               {obImageSrc && <img src={obImageSrc} alt="Oblique View" width="150" />}
             </div>
@@ -141,8 +144,8 @@ export default function FractureDetector() {
           
           {prediction !== null && (
             <div className={styles.predictionResult}>
-              <h3 className="text-xl font-semibold mb-2">Analysis Result:</h3>
-              <p className="text-lg mb-2">Reduction Probability: <span className="font-bold">{(prediction * 100).toFixed(2)}%</span></p>
+              <h3 className="text-xl font-semibold mb-2 text-black">Analysis Result:</h3>
+              <p className="text-lg mb-2 text-black">Reduction Probability: <span className="font-bold">{(prediction * 100).toFixed(2)}%</span></p>
               
               {/* Progress bar */}
               <div className="w-full bg-gray-200 rounded-full h-6 mb-4">
