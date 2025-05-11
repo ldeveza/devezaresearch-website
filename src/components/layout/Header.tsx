@@ -27,7 +27,7 @@ export default function Header() {
               <li><Link href="/publications" className="px-3 py-2 text-[#0f2862] hover:text-[#001440] transition-colors font-semibold">Publications</Link></li>
               <li><Link href="/team" className="px-3 py-2 text-[#0f2862] hover:text-[#001440] transition-colors font-semibold">Team</Link></li>
               <li><Link href="/rag-models" className="px-3 py-2 text-[#0f2862] hover:text-[#001440] transition-colors font-semibold">RAG Models</Link></li>
-              <li><Link href="/xray-tool" className="px-3 py-2 text-[#0f2862] hover:text-[#001440] transition-colors font-semibold">X-ray Tool</Link></li>
+              <li><Link href="/xray-tool" className="px-3 py-2 text-[#0f2862] hover:text-[#001440] transition-colors font-semibold">X-ray Fracture Tool</Link></li>
               <li><Link href="/sdoh-tools" className="px-3 py-2 text-[#0f2862] hover:text-[#001440] transition-colors font-semibold">SDOH Tools</Link></li>
               <li>
                 <a 
