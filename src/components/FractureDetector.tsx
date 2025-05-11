@@ -88,7 +88,7 @@ export default function FractureDetector() {
   
   return (
     <div className={styles.fractureDetector}>
-      <h2>X-Ray Fracture Detection</h2>
+      <h2 className="text-2xl font-bold text-black mb-4">X-Ray Fracture Reduction Assessment</h2>
       
       {!isModelLoaded ? (
         <div className={styles.loading}>
@@ -134,19 +134,28 @@ export default function FractureDetector() {
             onClick={handlePredict} 
             disabled={isLoading || !apImageSrc || !latImageSrc || !obImageSrc}
           >
-            {isLoading ? 'Analyzing...' : 'Detect Fracture'}
+            {isLoading ? 'Analyzing...' : 'Detect Need for Fracture Reduction'}
           </button>
           
           {error && <p className={styles.error}>{error}</p>}
           
           {prediction !== null && (
             <div className={styles.predictionResult}>
-              <h3>Analysis Result:</h3>
-              <p>Fracture Probability: {(prediction * 100).toFixed(2)}%</p>
+              <h3 className="text-xl font-semibold mb-2">Analysis Result:</h3>
+              <p className="text-lg mb-2">Reduction Probability: <span className="font-bold">{(prediction * 100).toFixed(2)}%</span></p>
+              
+              {/* Progress bar */}
+              <div className="w-full bg-gray-200 rounded-full h-6 mb-4">
+                <div 
+                  className={`h-6 rounded-full ${prediction > 0.5 ? 'bg-red-500' : 'bg-green-500'}`}
+                  style={{ width: `${(prediction * 100).toFixed(1)}%` }}
+                ></div>
+              </div>
+              
               {prediction > 0.5 ? (
-                <p className={styles.highRisk}>High probability of fracture detected</p>
+                <p className={styles.highRisk}>Fracture reduction likely needed</p>
               ) : (
-                <p className={styles.lowRisk}>Low probability of fracture</p>
+                <p className={styles.lowRisk}>Fracture reduction likely not needed</p>
               )}
             </div>
           )}
