@@ -1,0 +1,19 @@
+backend:
+  name: git-gateway
+  branch: main # Branch to update (main or master)
+
+media_folder: "public/images/news" # Media files will be stored in the repo under this folder
+public_folder: "/images/news" # The src attribute for uploaded media will begin with this path
+
+collections:
+  - name: "news"
+    label: "News"
+    folder: "src/content/news"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Publish Date", name: "date", widget: "datetime"}
+      - {label: "Category", name: "category", widget: "select", options: ["Announcement", "Publication", "Award", "Research Update", "Event"]}
+      - {label: "Featured Image", name: "thumbnail", widget: "image", required: false}
+      - {label: "Body", name: "body", widget: "markdown"}

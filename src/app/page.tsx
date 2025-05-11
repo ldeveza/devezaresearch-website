@@ -2,20 +2,35 @@ import Hero from "@/components/home/Hero";
 import ResearchHighlights from "@/components/home/ResearchHighlights";
 import LatestNews from "@/components/home/LatestNews";
 import Link from "next/link";
+import { getAllNewsItems } from "@/utils/newsUtils";
+
+// Define NewsItem type to match what LatestNews expects
+type NewsItem = {
+  slug: string;
+  frontmatter: {
+    title: string;
+    date: string;
+    category: string;
+    thumbnail?: string;
+  };
+  content: string;
+};
 
 export default function Home() {
+  // Cast the return value to the expected type
+  const newsItems = getAllNewsItems() as NewsItem[];
   return (
     <main>
       <Hero />
       <ResearchHighlights />
-      <LatestNews />
+      <LatestNews newsItems={newsItems} />
       
       {/* RAG Models CTA Section */}
       <section className="py-16 bg-indigo-50">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">RAG Model Chatbots</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Explore our interactive AI-powered chatbots designed to support healthcare professionals and patients.
+          <h2 className="text-3xl font-bold mb-4 text-black">RAG Model Chatbots</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto text-black">
+            Under construction
           </p>
           <Link 
             href="/rag-models" 
@@ -32,12 +47,12 @@ export default function Home() {
           <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
             <div className="flex flex-col md:flex-row items-center">
               <div className="md:w-1/2 mb-6 md:mb-0 md:pr-8">
-                <h2 className="text-3xl font-bold mb-4">Join Our Discord Community</h2>
-                <p className="mb-6">
+                <h2 className="text-3xl font-bold mb-4 text-black">Join Our Discord Community</h2>
+                <p className="mb-6 text-black">
                   Connect with researchers, clinicians, and AI enthusiasts to discuss orthopaedic research, healthcare AI, and more.
                 </p>
                 <a 
-                  href="#" 
+                  href="https://discord.gg/DmUBwVE3ps" 
                   className="px-6 py-3 bg-[#5865F2] text-white font-bold rounded-md hover:bg-[#4752C4] transition-colors inline-block"
                   target="_blank"
                   rel="noopener noreferrer"

@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function Hero() {
   return (
-    <section className="bg-gradient-to-r from-blue-900 to-indigo-800 text-white py-20">
+    <section className="bg-gradient-to-r from-[#001440] to-[#0f2862] text-white py-20">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
