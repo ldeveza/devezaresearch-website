@@ -1,21 +1,21 @@
 'use client';
 
 import React from 'react';
-import FracturePrediction from '@/components/FracturePrediction';
+import FractureDetector from '@/components/FractureDetector';
 
 export default function XrayToolPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-blue-600 mb-6">Distal Radius X-ray Fracture Detection</h1>
+      <h1 className="text-3xl font-bold text-blue-600 mb-6">Distal Radius X-ray Fracture Reduction Assessment</h1>
       
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <p className="text-lg mb-8 max-w-3xl">
-          This tool uses our deep learning model to detect distal radius fractures from three standard X-ray views.
-          Upload your AP, Lateral, and Oblique X-ray images below to get a fracture probability assessment.
+        <p className="text-lg mb-8 max-w-3xl text-black">
+          This tool uses our deep learning model to assess the need for fracture reduction from three standard X-ray views.
+          Upload your AP, Lateral, and Oblique X-ray images below to determine if reduction is necessary.
         </p>
         
-        {/* Fracture Prediction Component */}
-        <FracturePrediction />
+        {/* Fracture Detection Component - Browser-based with TensorFlow.js */}
+        <FractureDetector />
       </div>
       
       {/* Features */}
@@ -25,7 +25,8 @@ export default function XrayToolPage() {
           <li className="mb-2">Multi-view analysis using AP, Lateral, and Oblique perspectives</li>
           <li className="mb-2">AI-powered fracture probability estimation</li>
           <li className="mb-2">Based on DenseNet-169 architecture trained on radiologist-labeled images</li>
-          <li className="mb-2">Real-time prediction with instant results</li>
+          <li className="mb-2">Real-time prediction with instant results directly in your browser</li>
+          <li className="mb-2">No data sent to external servers - all processing happens locally</li>
         </ul>
       </div>
       
