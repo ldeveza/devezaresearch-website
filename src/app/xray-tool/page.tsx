@@ -6,7 +6,7 @@ import FractureDetector from '@/components/FractureDetector';
 export default function XrayToolPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-blue-600 mb-6">Distal Radius X-ray Fracture Reduction Assessment</h1>
+      <h1 className="text-3xl font-bold text-[#0f2862] mb-6">Distal Radius X-ray Fracture Reduction Assessment</h1>
       
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
         <p className="text-lg mb-8 max-w-3xl text-black">
@@ -19,7 +19,7 @@ export default function XrayToolPage() {
       </div>
       
       {/* Features */}
-      <div className="bg-blue-50 border border-blue-200 text-blue-700 p-6 rounded-lg max-w-3xl mb-8">
+      <div className="bg-blue-50 border border-[#0f2862]/20 text-[#0f2862] p-6 rounded-lg max-w-3xl mb-8">
         <p className="font-semibold mb-3 text-xl">Features:</p>
         <ul className="list-disc pl-6">
           <li className="mb-2">Multi-view analysis using AP, Lateral, and Oblique perspectives</li>
