@@ -88,7 +88,7 @@ export default function FractureDetector() {
   
   return (
     <div className={styles.fractureDetector}>
-      <h2 className="text-2xl font-bold text-black mb-4">X-Ray Fracture Reduction Assessment</h2>
+      <h2 className="text-2xl font-bold text-black mb-4">Distal Radius Fracture Reduction Assessment</h2>
       
       {!isModelLoaded ? (
         <div className={styles.loading}>
@@ -144,8 +144,8 @@ export default function FractureDetector() {
           
           {prediction !== null && (
             <div className={styles.predictionResult}>
-              <h3 className="text-xl font-semibold mb-2 text-black">Analysis Result:</h3>
-              <p className="text-lg mb-2 text-black">Reduction Probability: <span className="font-bold">{(prediction * 100).toFixed(2)}%</span></p>
+              <h3 className="text-xl font-semibold mb-2 text-black">Distal Radius Analysis Result:</h3>
+              <p className="text-lg mb-2 text-black">Probability of Needed Reduction: <span className="font-bold">{(prediction * 100).toFixed(2)}%</span></p>
               
               {/* Progress bar */}
               <div className="w-full bg-gray-200 rounded-full h-6 mb-4">
@@ -156,9 +156,9 @@ export default function FractureDetector() {
               </div>
               
               {prediction > 0.5 ? (
-                <p className={styles.highRisk}>Fracture reduction likely needed</p>
+                <p className={styles.highRisk}>Distal radius fracture reduction likely needed</p>
               ) : (
-                <p className={styles.lowRisk}>Fracture reduction likely not needed</p>
+                <p className={styles.lowRisk}>Distal radius fracture reduction likely not needed</p>
               )}
             </div>
           )}
