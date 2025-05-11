@@ -56,8 +56,38 @@ export default function FractureDetector() {
         }
       };
       img.src = e.target?.result as string;
+      
+      // Ensure consistent image processing for model input
+      img.crossOrigin = 'anonymous';
     };
     reader.readAsDataURL(file);
+  }
+  
+  // Create refs for file inputs
+  const apFileInputRef = useRef<HTMLInputElement>(null);
+  const latFileInputRef = useRef<HTMLInputElement>(null);
+  const obFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reset function to clear images and prediction
+  function handleReset() {
+    // Clear image references
+    apImageRef.current = null;
+    latImageRef.current = null;
+    obImageRef.current = null;
+    
+    // Clear image sources
+    setApImageSrc(null);
+    setLatImageSrc(null);
+    setObImageSrc(null);
+    
+    // Reset prediction and error state
+    setPrediction(null);
+    setError(null);
+    
+    // Reset file input fields
+    if (apFileInputRef.current) apFileInputRef.current.value = '';
+    if (latFileInputRef.current) latFileInputRef.current.value = '';
+    if (obFileInputRef.current) obFileInputRef.current.value = '';
   }
   
   // Run prediction
@@ -97,48 +127,134 @@ export default function FractureDetector() {
         </div>
       ) : (
         <div>
-          <div className={styles.imageUploadContainer}>
-            <div className={styles.imageUpload}>
-              <label className="font-bold text-black">AP View</label>
-              <input 
-                type="file" 
-                accept="image/*"
-                onChange={(e) => handleImageUpload(e, 'ap')} 
-                className="text-black"
-              />
-              {apImageSrc && <img src={apImageSrc} alt="AP View" width="150" />}
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
+              {/* AP View Upload */}
+              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: '#f9f9f9', width: '300px' }}>
+                <label className="font-bold block mb-2 text-black">AP View</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, 'ap')} 
+                  className="text-black mb-2 w-full"
+                  ref={apFileInputRef}
+                />
+              </div>
+
+              {/* Lateral View Upload */}
+              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: '#f9f9f9', width: '300px' }}>
+                <label className="font-bold block mb-2 text-black">Lateral View</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, 'lat')} 
+                  className="text-black mb-2 w-full"
+                  ref={latFileInputRef}
+                />
+              </div>
+
+              {/* Oblique View Upload */}
+              <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: '#f9f9f9', width: '300px' }}>
+                <label className="font-bold block mb-2 text-black">Oblique View</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, 'ob')} 
+                  className="text-black mb-2 w-full"
+                  ref={obFileInputRef}
+                />
+              </div>
             </div>
-            
-            <div className={styles.imageUpload}>
-              <label className="font-bold text-black">Lateral View</label>
-              <input 
-                type="file" 
-                accept="image/*"
-                onChange={(e) => handleImageUpload(e, 'lat')} 
-                className="text-black"
-              />
-              {latImageSrc && <img src={latImageSrc} alt="Lateral View" width="150" />}
-            </div>
-            
-            <div className={styles.imageUpload}>
-              <label className="font-bold text-black">Oblique View</label>
-              <input 
-                type="file" 
-                accept="image/*"
-                onChange={(e) => handleImageUpload(e, 'ob')} 
-                className="text-black"
-              />
-              {obImageSrc && <img src={obImageSrc} alt="Oblique View" width="150" />}
-            </div>
+
+            {/* Image Preview Section */}
+            {(apImageSrc || latImageSrc || obImageSrc) && (
+              <div style={{ marginTop: '30px', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '15px 0px', backgroundColor: '#f8fafc', width: '100%', overflow: 'hidden' }}>
+                <h3 className="text-xl font-bold mb-4 text-center text-blue-600">X-ray Images Preview</h3>
+                <div style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'flex-start', gap: '0px', overflowX: 'auto', paddingBottom: '10px', paddingLeft: '10px', width: '100%' }}>
+                  {apImageSrc && (
+                    <div style={{ textAlign: 'center', margin: '0', padding: '0' }}>
+                      <p className="font-medium text-gray-700 mb-1">AP View</p>
+                      <div style={{ height: '450px', width: '410px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '5px', margin: '0 -10px' }}>
+                        {/* Use the same image ref that's used by the model */}
+                        {apImageRef.current && (
+                          <img 
+                            ref={(el) => {
+                              // This ensures we're referencing the same image for display and model
+                              if (el && apImageRef.current) {
+                                el.src = apImageRef.current.src;
+                              }
+                            }}
+                            alt="AP View" 
+                            style={{ maxHeight: '420px', maxWidth: '420px', objectFit: 'contain' }} 
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {latImageSrc && (
+                    <div style={{ textAlign: 'center', margin: '0', padding: '0' }}>
+                      <p className="font-medium text-gray-700 mb-1">Lateral View</p>
+                      <div style={{ height: '450px', width: '410px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '5px', margin: '0 -10px' }}>
+                        {/* Use the same image ref that's used by the model */}
+                        {latImageRef.current && (
+                          <img 
+                            ref={(el) => {
+                              // This ensures we're referencing the same image for display and model
+                              if (el && latImageRef.current) {
+                                el.src = latImageRef.current.src;
+                              }
+                            }}
+                            alt="Lateral View" 
+                            style={{ maxHeight: '420px', maxWidth: '420px', objectFit: 'contain' }} 
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {obImageSrc && (
+                    <div style={{ textAlign: 'center', margin: '0', padding: '0' }}>
+                      <p className="font-medium text-gray-700 mb-1">Oblique View</p>
+                      <div style={{ height: '450px', width: '410px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '5px', margin: '0 -10px' }}>
+                        {/* Use the same image ref that's used by the model */}
+                        {obImageRef.current && (
+                          <img 
+                            ref={(el) => {
+                              // This ensures we're referencing the same image for display and model
+                              if (el && obImageRef.current) {
+                                el.src = obImageRef.current.src;
+                              }
+                            }}
+                            alt="Oblique View" 
+                            style={{ maxHeight: '420px', maxWidth: '420px', objectFit: 'contain' }} 
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
           
-          <button 
-            className={styles.analyzeButton}
-            onClick={handlePredict} 
-            disabled={isLoading || !apImageSrc || !latImageSrc || !obImageSrc}
-          >
-            {isLoading ? 'Analyzing...' : 'Detect Need for Fracture Reduction'}
-          </button>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '20px', marginBottom: '20px', justifyContent: 'center' }}>
+            <button 
+              className={styles.analyzeButton}
+              onClick={handlePredict} 
+              disabled={isLoading || !apImageSrc || !latImageSrc || !obImageSrc}
+            >
+              {isLoading ? 'Analyzing...' : 'Detect Need for Fracture Reduction'}
+            </button>
+            
+            <button 
+              className={styles.resetButton}
+              onClick={handleReset}
+              disabled={isLoading || (!apImageSrc && !latImageSrc && !obImageSrc && prediction === null)}
+            >
+              Reset All
+            </button>
+          </div>
           
           {error && <p className={styles.error}>{error}</p>}
           
