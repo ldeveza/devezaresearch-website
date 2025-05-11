@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import FracturePrediction from '@/components/FracturePrediction';
+import FractureDetector from '@/components/FractureDetector';
 
 export default function XrayToolPage() {
   return (
@@ -14,8 +14,8 @@ export default function XrayToolPage() {
           Upload your AP, Lateral, and Oblique X-ray images below to get a fracture probability assessment.
         </p>
         
-        {/* Fracture Prediction Component */}
-        <FracturePrediction />
+        {/* Fracture Detection Component - Browser-based with TensorFlow.js */}
+        <FractureDetector />
       </div>
       
       {/* Features */}
@@ -25,7 +25,8 @@ export default function XrayToolPage() {
           <li className="mb-2">Multi-view analysis using AP, Lateral, and Oblique perspectives</li>
           <li className="mb-2">AI-powered fracture probability estimation</li>
           <li className="mb-2">Based on DenseNet-169 architecture trained on radiologist-labeled images</li>
-          <li className="mb-2">Real-time prediction with instant results</li>
+          <li className="mb-2">Real-time prediction with instant results directly in your browser</li>
+          <li className="mb-2">No data sent to external servers - all processing happens locally</li>
         </ul>
       </div>
       
